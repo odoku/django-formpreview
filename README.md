@@ -49,10 +49,10 @@ Djangoのデフォルトストレージを変更すると、一緒に変わり�
 ### ビューの実装方法
 
     from django import forms
-    from formpreview.views import FormPreview
+    from formpreview.views import FormView
 
 
-    class ArticleView(FormPreview):
+    class ArticleView(FormView):
         form_class = forms.Forms
         form_template = 'form.html'
         preview_template = 'preview.html'
@@ -70,7 +70,5 @@ Djangoのデフォルトストレージを変更すると、一緒に変わり�
             # 登録処理など
             return super(ArticleView, self).done(form)
 
-注意点
--------------------------
-FormViewの代わりに使用される事を想定しています。  
-UpdateViewとかその他の便利ビューと一緒には使えないのでご了承下さいませ。
+他にもCreateViewとかUpdateViewがありますよ。  
+使い方はDjangoのやつと似たような感じです。

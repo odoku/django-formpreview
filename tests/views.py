@@ -8,7 +8,7 @@ from django.test.client import RequestFactory
 from django.utils.datastructures import MultiValueDict
 from mock import patch
 
-from ..views import FormPreview
+from ..views import FormView
 from ..files import CachedFile
 
 
@@ -18,14 +18,14 @@ class SampleForm(forms.Form):
     attachment = forms.FileField(label='Attachment', required=False)
 
 
-class SampleView(FormPreview):
+class SampleView(FormView):
     form_class = SampleForm
     form_template = 'formpreview/form.html'
     preview_template = 'formpreview/preview.html'
     success_url = '/success'
 
 
-class FormPreviewTest(TestCase):
+class FormViewTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.view = SampleView.as_view()
@@ -35,7 +35,7 @@ class FormPreviewTest(TestCase):
         self.test_file = CachedFile(self.file_object, '/path/to/filename', '/path/to/filename')
         self.test_file.name = 'sample.txt'
 
-        self.patcher = patch('formpreview.views.FormPreview.post_cache_class', ** {
+        self.patcher = patch('formpreview.views.FormView.post_cache_class', ** {
             'return_value.save.return_value': None,
             'return_value.clear.return_value': None,
             'return_value.POST': MultiValueDict({

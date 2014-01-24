@@ -1,7 +1,9 @@
 # coding=utf8
 
 from django.http import HttpResponseRedirect
-from django.views.generic.edit import FormView
+from django.views.generic.base import TemplateResponseMixin, View
+from django.views.generic.detail import SingleObjectTemplateResponseMixin
+from django.views.generic.edit import FormMixin, ModelFormMixin
 
 from cache import get_post_cache_class
 
@@ -18,7 +20,7 @@ STAGES = {
 STAGE_FIELD = 'stage'
 
 
-class FormPreview(FormView):
+class FormPreviewMixin(FormMixin):
     post_cache_class = get_post_cache_class()
     stage_field = STAGE_FIELD
     form_template = None
@@ -31,29 +33,15 @@ class FormPreview(FormView):
         key = self.get_post_cache_key()
         self.post_cache = self.post_cache_class(key)
 
-        return super(FormPreview, self).dispatch(request, *args, **kwargs)
+        return super(FormPreviewMixin, self).dispatch(request, *args, **kwargs)
 
     def get_post_cache_key(self):
         session_key = self.request.session.session_key
         path = self.request.path
         return session_key + ':' + path
 
-    def get(self, request, *args, **kwargs):
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        return self.input(form)
-
-    def post(self, request, *args, **kwargs):
-        if self.stage == STAGE_PREVIEW:
-            self.post_cache.save(request)
-        return super(FormPreview, self).post(request, *args, **kwargs)
-
     def get_form_kwargs(self):
-        kwargs = {
-            'initial': self.get_initial(),
-            'prefix': self.get_prefix(),
-        }
-
+        kwargs = super(FormPreviewMixin, self).get_form_kwargs()
         if self.request.method in ('POST', 'PUT'):
             kwargs.update({
                 'data': self.post_cache.POST,
@@ -62,7 +50,7 @@ class FormPreview(FormView):
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(FormPreview, self).get_context_data(**kwargs)
+        context = super(FormPreviewMixin, self).get_context_data(**kwargs)
         context['stage_field'] = self.stage_field
         context['stage'] = self.stage
         return context
@@ -92,3 +80,65 @@ class FormPreview(FormView):
     def done(self, form):
         self.post_cache.clear()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ModelFormPreviewMixin(ModelFormMixin, FormPreviewMixin):
+    def done(self, form):
+        form.save()
+        return super(ModelFormPreviewMixin, self).done(form)
+
+
+class ProcessFormView(View):
+    def get(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        return self.input(form)
+
+    def post(self, request, *args, **kwargs):
+        if self.stage == STAGE_PREVIEW:
+            self.post_cache.save(request)
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def put(self, *args, **kwargs):
+        return self.post(*args, **kwargs)
+
+
+class BaseFormView(FormPreviewMixin, ProcessFormView):
+    pass
+
+
+class FormView(TemplateResponseMixin, BaseFormView):
+    pass
+
+
+class BaseCreateView(ModelFormPreviewMixin, ProcessFormView):
+    def get(self, request, *args, **kwargs):
+        self.object = None
+        return super(BaseCreateView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        return super(BaseCreateView, self).post(request, *args, **kwargs)
+
+
+class CreateView(SingleObjectTemplateResponseMixin, BaseCreateView):
+    template_name_suffix = '_form'
+
+
+class BaseUpdateView(ModelFormPreviewMixin, ProcessFormView):
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(BaseUpdateView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(BaseUpdateView, self).post(request, *args, **kwargs)
+
+
+class UpdateView(SingleObjectTemplateResponseMixin, BaseUpdateView):
+    template_name_suffix = '_form'

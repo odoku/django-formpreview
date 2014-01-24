@@ -22,6 +22,7 @@ class FileCacheTest(TestCase):
 
     def test_save(self, *args, **kwargs):
         file_object = ContentFile('')
+        file_object.name = 'filename'
         path = self.file_cache.save(file_object)
         self.assertTrue(isinstance(path, str))
 

@@ -1,5 +1,5 @@
 from cache import PostCacheBaseTest  # NOQA
 from files import FileCacheTest  # NOQA
-from views import FormPreviewTest  # NOQA
+from views import FormView  # NOQA
 
-__all__ = ['FormPreviewTest', ' FileCacheTest', 'PostCacheBaseTest']
+__all__ = ['FormView', ' FileCacheTest', 'PostCacheBaseTest']
