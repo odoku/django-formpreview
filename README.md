@@ -27,7 +27,6 @@ DjangoのFormViewを継承しているので、基本的な使い方は[Django�
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-            'LOCATION': 'django_cache',
         },
         'formpreview': {
             'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
@@ -45,7 +44,7 @@ Djangoのデフォルトストレージを変更すると、一緒に変わり�
 
 ファイルの一時保存先ディレクトリの指定は以下の様に。
 
-    FORM_PREVIEW_UPLOAD_TMP_DIR = '/upload/tmp'
+    FORM_PREVIEW_UPLOAD_TMP_DIR = 'upload/tmp/'
 
 ### ビューの実装方法
 
@@ -65,7 +64,7 @@ Djangoのデフォルトストレージを変更すると、一緒に変わり�
 
         def preview(self, form):
             # 確認画面
-            return super(ArticleView, self).input(form)
+            return super(ArticleView, self).preview(form)
 
         def done(self, form):
             # 登録処理など
