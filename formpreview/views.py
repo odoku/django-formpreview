@@ -31,14 +31,19 @@ class FormPreviewMixin(FormMixin):
         self.stage = self.stage if self.stage in STAGES else STAGE_INPUT
 
         key = self.get_post_cache_key()
-        self.post_cache = self.post_cache_class(key)
+        if key:
+            self.post_cache = self.post_cache_class(key)
+        else:
+            self.post_cache = None
 
         return super(FormPreviewMixin, self).dispatch(request, *args, **kwargs)
 
     def get_post_cache_key(self):
         session_key = self.request.session.session_key
-        path = self.request.path
-        return session_key + ':' + path
+        if not session_key:
+            return None
+        else:
+            return session_key + ':' + self.request.path
 
     def get_form_kwargs(self):
         kwargs = super(FormPreviewMixin, self).get_form_kwargs()
