@@ -40,7 +40,7 @@ Djangoのデフォルトストレージを変更すると、一緒に変わり�
 別々にしたい場合は以下の様に設定を行って下さい。
 
     # お好きなストレージ
-    FORMPREVIEW_FILE_CACHE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    FORM_PREVIEW_FILE_CACHE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 ファイルの一時保存先ディレクトリの指定は以下の様に。
 

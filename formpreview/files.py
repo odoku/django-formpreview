@@ -12,7 +12,7 @@ def get_storage(import_path=None):
         return import_by_path(import_path)()
     else:
         try:
-            return import_by_path(settings.FORMPREVIEW_FILE_CACHE_STORAGE)()
+            return import_by_path(settings.FORM_PREVIEW_FILE_CACHE_STORAGE)()
         except AttributeError:
             return default_storage
 
