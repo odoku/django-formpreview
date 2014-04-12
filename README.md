@@ -48,6 +48,8 @@ Djangoのデフォルトストレージを変更すると、一緒に変わり�
 
 ### ビューの実装方法
 
+#### views.py
+
     from django import forms
     from formpreview.views import FormView
 
@@ -69,6 +71,45 @@ Djangoのデフォルトストレージを変更すると、一緒に変わり�
         def done(self, form):
             # 登録処理など
             return super(ArticleView, self).done(form)
+
+#### form.html
+
+    <html>
+    <head>
+        <title>Form</title>
+    </head>
+    <body>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ cache_key }}
+            <table>
+                {{ form }}
+            </table>
+            <p><button type="submit" name="{{ stage_field }}" value="preview">Preview</button></p>
+        </form>
+    </body>
+    </html>
+
+#### preview.html
+
+    <html>
+    <head>
+        <title>Preview</title>
+    </head>
+    <body>
+        <form method="post">
+            {% csrf_token %}
+            {{ cache_key }}
+            <table>
+                {{ form.preview_as_table }}
+            </table>
+            <p>
+                <button type="submit" name="{{ stage_field }}" value="back">Back</button>
+                <button type="submit" name="{{ stage_field }}" value="post">Post</button>
+            </p>
+        </form>
+    </body>
+    </html>
 
 他にもCreateViewとかUpdateViewがありますよ。  
 使い方はDjangoのやつと似たような感じです。
