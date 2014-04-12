@@ -9,4 +9,5 @@ class Poll(models.Model):
         return os.path.join('poll', filename)
 
     question = models.CharField(max_length=200)
-    image = models.ImageField('image', upload_to=upload_to, blank=True, null=True)
+    main_image = models.ImageField('main image', upload_to=upload_to)
+    sub_image = models.ImageField('sub image', upload_to=upload_to, blank=True, null=True)

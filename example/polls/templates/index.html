@@ -12,7 +12,8 @@
             <tr>
                 <th>id</th>
                 <th>question</th>
-                <th>image</th>
+                <th>main image</th>
+                <th>sub image</th>
             </tr>
         </thead>
         <tbody>
@@ -21,8 +22,11 @@
                 <td><a href="{% url 'update' poll.pk %}">{{ poll.pk }}</a></td>
                 <td>{{ poll.question }}</td>
                 <td>
-                    {% if poll.image %}
-                        <a href="{{ poll.image.url }}">{{ poll.image.url }}</a>
+                    <a href="{{ poll.main_image.url }}"><img src="{{ poll.main_image.url }}" height="64"></a>
+                </td>
+                <td>
+                    {% if poll.sub_image %}
+                        <a href="{{ poll.sub_image.url }}"><img src="{{ poll.sub_image.url }}" height="64"></a>
                     {% endif %}
                 </td>
             </tr>

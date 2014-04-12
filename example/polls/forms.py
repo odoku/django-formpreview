@@ -10,7 +10,8 @@ class PollModelForm(forms.ModelForm):
 
 class PollForm(forms.Form):
     question = forms.CharField(max_length=200)
-    image = forms.ImageField(required=False)
+    main_image = forms.ImageField()
+    sub_image = forms.ImageField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance', None)
@@ -24,10 +25,16 @@ class PollForm(forms.Form):
         poll = self.instance if self.instance else Poll()
 
         poll.question = self.cleaned_data['question']
-        if self.cleaned_data['image'] is False:
-            poll.image = None
+
+        if self.cleaned_data['main_image'] is False:
+            poll.main_image = None
         else:
-            poll.image = self.cleaned_data['image']
+            poll.main_image = self.cleaned_data['main_image']
+
+        if self.cleaned_data['sub_image'] is False:
+            poll.sub_image = None
+        else:
+            poll.sub_image = self.cleaned_data['sub_image']
 
         if commit:
             poll.save()
