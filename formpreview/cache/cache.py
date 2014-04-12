@@ -11,4 +11,6 @@ class CachePostCache(PostCacheBase):
         return self._cache.get(key, None)
 
     def set_cache(self, key, value, expires=None):
+        if not expires:
+            expires = 24 * 60 * 60
         self._cache.set(key, value, expires)
