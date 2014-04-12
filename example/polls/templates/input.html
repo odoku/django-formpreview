@@ -1,0 +1,14 @@
+<html>
+<head>
+    <title>Create - Poll</title>
+</head>
+<body>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <table>
+            {{ form }}
+        </table>
+        <p><button type="submit" name="{{ stage_field }}" value="preview">Preview</button></p>
+    </form>
+</body>
+</html>

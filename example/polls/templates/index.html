@@ -1,0 +1,33 @@
+<html>
+<head>
+    <title>Poll</title>
+</head>
+<body>
+    <ul>
+        <li><a href="{% url 'form' %}">Form Preview</a></li>
+        <li><a href="{% url 'create' %}">Create Form Preview</a></li>
+    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>question</th>
+                <th>image</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for poll in poll_list %}
+            <tr>
+                <td><a href="{% url 'update' poll.pk %}">{{ poll.pk }}</a></td>
+                <td>{{ poll.question }}</td>
+                <td>
+                    {% if poll.image %}
+                        <a href="{{ poll.image.url }}">{{ poll.image.url }}</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

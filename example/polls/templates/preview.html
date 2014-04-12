@@ -1,0 +1,17 @@
+<html>
+<head>
+    <title>Preview - Poll</title>
+</head>
+<body>
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            {{ form.preview_as_table }}
+        </table>
+        <p>
+            <button type="submit" name="{{ stage_field }}" value="back">Back</button>
+            <button type="submit" name="{{ stage_field }}" value="post">Post</button>
+        </p>
+    </form>
+</body>
+</html>
