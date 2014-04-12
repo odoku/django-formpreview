@@ -5,6 +5,7 @@
 <body>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        {{ cache_key }}
         <table>
             {{ form }}
         </table>

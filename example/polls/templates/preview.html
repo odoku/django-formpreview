@@ -5,6 +5,7 @@
 <body>
     <form method="post">
         {% csrf_token %}
+        {{ cache_key }}
         <table>
             {{ form.preview_as_table }}
         </table>

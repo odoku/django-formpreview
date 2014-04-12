@@ -1,5 +1,6 @@
 # coding=utf8
 from types import MethodType
+import uuid
 import warnings
 
 from django import forms
@@ -24,6 +25,7 @@ STAGES = {
 }
 
 STAGE_FIELD = 'stage'
+CACHE_KEY_FIELD = 'cache_key'
 
 
 def _contribute_to_form(form):
@@ -42,6 +44,7 @@ def _contribute_to_form(form):
 class FormPreviewMixin(FormMixin):
     post_cache_class = get_post_cache_class()
     stage_field = STAGE_FIELD
+    cache_key_field = CACHE_KEY_FIELD
     form_template = None
     preview_template = None
 
@@ -49,20 +52,13 @@ class FormPreviewMixin(FormMixin):
         self.stage = request.POST.get(self.stage_field, STAGE_INPUT)
         self.stage = self.stage if self.stage in STAGES else STAGE_INPUT
 
-        key = self.get_post_cache_key()
-        if key:
-            self.post_cache = self.post_cache_class(key)
-        else:
-            self.post_cache = None
+        self.cache_key = self.get_cache_key()
+        self.post_cache = self.post_cache_class(self.cache_key)
 
         return super(FormPreviewMixin, self).dispatch(request, *args, **kwargs)
 
-    def get_post_cache_key(self):
-        session_key = self.request.session.session_key
-        if not session_key:
-            return None
-        else:
-            return session_key + ':' + self.request.path
+    def get_cache_key(self):
+        return self.request.POST.get(self.cache_key_field, uuid.uuid4().hex)
 
     def get_form_kwargs(self):
         kwargs = super(FormPreviewMixin, self).get_form_kwargs()
@@ -77,6 +73,11 @@ class FormPreviewMixin(FormMixin):
         context = super(FormPreviewMixin, self).get_context_data(**kwargs)
         context['stage_field'] = self.stage_field
         context['stage'] = self.stage
+        context['cache_key_field'] = self.cache_key_field
+        context['cache_key'] = mark_safe('<input type="hidden" name="{0}" value="{1}">'.format(
+            self.cache_key_field,
+            self.cache_key
+        ))
         return context
 
     def form_valid(self, form):
