@@ -45,7 +45,7 @@ class FormPreviewMixin(FormMixin):
     post_cache_class = get_post_cache_class()
     stage_field = STAGE_FIELD
     cache_key_field = CACHE_KEY_FIELD
-    form_template = None
+    input_template = None
     preview_template = None
 
     def dispatch(self, request, *args, **kwargs):
@@ -96,7 +96,7 @@ class FormPreviewMixin(FormMixin):
         return self.input(form)
 
     def input(self, form):
-        self.template_name = self.form_template
+        self.template_name = self.input_template
         return self.render_to_response(self.get_context_data(form=form))
 
     def preview(self, form):

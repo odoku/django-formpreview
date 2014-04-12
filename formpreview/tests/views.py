@@ -20,7 +20,7 @@ class SampleForm(forms.Form):
 
 class SampleView(FormView):
     form_class = SampleForm
-    form_template = 'formpreview/form.html'
+    input_template = 'formpreview/form.html'
     preview_template = 'formpreview/preview.html'
     success_url = '/success'
 

@@ -15,7 +15,7 @@ index = IndexView.as_view()
 
 class PollFormView(FormView):
     form_class = PollForm
-    form_template = 'input.html'
+    input_template = 'input.html'
     preview_template = 'preview.html'
     success_url = reverse_lazy('index')
 
@@ -28,7 +28,7 @@ form = PollFormView.as_view()
 
 class PollCreateView(CreateView):
     form_class = PollModelForm
-    form_template = 'input.html'
+    input_template = 'input.html'
     preview_template = 'preview.html'
     success_url = reverse_lazy('index')
 
@@ -38,7 +38,7 @@ create = PollCreateView.as_view()
 class PollUpdateView(UpdateView):
     queryset = Poll.objects.all()
     form_class = PollModelForm
-    form_template = 'input.html'
+    input_template = 'input.html'
     preview_template = 'preview.html'
     success_url = reverse_lazy('index')
 
