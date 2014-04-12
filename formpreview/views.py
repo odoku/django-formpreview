@@ -1,9 +1,15 @@
 # coding=utf8
+from types import MethodType
+import warnings
 
+from django import forms
+from django.core.exceptions import ImproperlyConfigured
+from django.forms import models as model_forms
 from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateResponseMixin, View
-from django.views.generic.detail import SingleObjectTemplateResponseMixin
-from django.views.generic.edit import FormMixin, ModelFormMixin
+from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
+from django.views.generic.edit import FormMixin
+from django.utils.safestring import mark_safe
 
 from cache import get_post_cache_class
 
@@ -18,6 +24,19 @@ STAGES = {
 }
 
 STAGE_FIELD = 'stage'
+
+
+def _contribute_to_form(form):
+    def preview_as_table(self):
+        rows = []
+        template = '<tr><th>{0}</th><td>{1}</td></tr>'
+        for field in self:
+            if isinstance(field, forms.FileField):
+                rows.append(template.format(field.label, field.data))
+            else:
+                rows.append(template.format(field.label_tag(), field.value()))
+        return mark_safe('\n'.join(rows))
+    form.preview_as_table = MethodType(preview_as_table, form, form.__class__)
 
 
 class FormPreviewMixin(FormMixin):
@@ -64,6 +83,7 @@ class FormPreviewMixin(FormMixin):
         if self.stage == STAGE_INPUT:
             return self.input(form)
         if self.stage == STAGE_PREVIEW:
+            _contribute_to_form(form)
             return self.preview(form)
         if self.stage == STAGE_POST:
             return self.done(form)
@@ -87,9 +107,63 @@ class FormPreviewMixin(FormMixin):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ModelFormPreviewMixin(ModelFormMixin, FormPreviewMixin):
+class ModelFormPreviewMixin(FormPreviewMixin, SingleObjectMixin):
+    """
+    A mixin that provides a way to show and handle a modelform in a request.
+    """
+    fields = None
+
+    def get_form_class(self):
+        """
+        Returns the form class to use in this view.
+        """
+        if self.form_class:
+            return self.form_class
+        else:
+            if self.model is not None:
+                # If a model has been explicitly provided, use it
+                model = self.model
+            elif hasattr(self, 'object') and self.object is not None:
+                # If this view is operating on a single object, use
+                # the class of that object
+                model = self.object.__class__
+            else:
+                # Try to get a queryset and extract the model class
+                # from that
+                model = self.get_queryset().model
+
+            if self.fields is None:
+                warnings.warn("Using ModelFormPreviewMixin (base class of %s) without "
+                              "the 'fields' attribute is deprecated." % self.__class__.__name__,
+                              PendingDeprecationWarning)
+
+            return model_forms.modelform_factory(model, fields=self.fields)
+
+    def get_form_kwargs(self):
+        """
+        Returns the keyword arguments for instantiating the form.
+        """
+        kwargs = super(ModelFormPreviewMixin, self).get_form_kwargs()
+        kwargs.update({'instance': self.object})
+        return kwargs
+
+    def get_success_url(self):
+        """
+        Returns the supplied URL.
+        """
+        if self.success_url:
+            url = self.success_url % self.object.__dict__
+        else:
+            try:
+                url = self.object.get_absolute_url()
+            except AttributeError:
+                raise ImproperlyConfigured(
+                    "No URL to redirect to.  Either provide a url or define"
+                    " a get_absolute_url method on the Model.")
+        return url
+
     def done(self, form):
-        form.save()
+        self.object = form.save()
         return super(ModelFormPreviewMixin, self).done(form)
 
 
