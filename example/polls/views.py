@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse_lazy
-from django.views.generic import ListView, TemplateView
+from django.views.generic import ListView
 from formpreview.views import CreateView, FormView, UpdateView
 
 from forms import PollForm, PollModelForm
