@@ -56,7 +56,7 @@ Djangoのデフォルトストレージを変更すると、一緒に変わり�
 
     class ArticleView(FormView):
         form_class = forms.Forms
-        form_template = 'form.html'
+        input_template = 'form.html'
         preview_template = 'preview.html'
         success_url = '/completed'
 
