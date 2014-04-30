@@ -1,4 +1,6 @@
 # coding=utf8
+from __future__ import unicode_literals
+
 from types import MethodType
 import uuid
 import warnings
